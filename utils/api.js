@@ -1,7 +1,9 @@
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_BASE_URL || '',
+  // Use empty baseURL so API calls are always relative to the same origin
+  // This works for both localhost and Vercel deployments
+  baseURL: '',
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',

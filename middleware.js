@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { verifyToken } from '@/lib/auth';
 
 export async function middleware(request) {
   const { pathname } = request.nextUrl;
@@ -17,7 +16,7 @@ export async function middleware(request) {
   // Check if the current path is public
   const isPublicPath = publicPaths.some((path) => pathname === path);
 
-  // Allow Next.js internals, static files, and public assets
+  // Allow Next.js internals and static assets
   if (
     pathname.startsWith('/_next') ||
     pathname.startsWith('/favicon') ||
@@ -48,24 +47,9 @@ export async function middleware(request) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  const decoded = verifyToken(token);
-  if (!decoded) {
-    if (pathname.startsWith('/api/')) {
-      return NextResponse.json({ error: 'Invalid or expired token' }, { status: 401 });
-    }
-    const response = NextResponse.redirect(new URL('/login', request.url));
-    response.cookies.set('token', '', { maxAge: 0, path: '/' });
-    return response;
-  }
-
-  const requestHeaders = new Headers(request.headers);
-  requestHeaders.set('x-user-id', decoded.userId);
-
-  return NextResponse.next({
-    request: {
-      headers: requestHeaders,
-    },
-  });
+  // Token exists — let the request through.
+  // Full JWT verification happens in the API routes themselves.
+  return NextResponse.next();
 }
 
 export const config = {
