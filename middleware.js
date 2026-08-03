@@ -7,11 +7,13 @@ export async function middleware(request) {
   const publicPaths = [
     '/login',
     '/register',
-    '/',
     '/api/auth/register',
     '/api/auth/login',
     '/api/auth/logout',
   ];
+
+  // Landing page is public, but logged-in users should go to dashboard
+  const isLandingPage = pathname === '/';
 
   // Check if the current path is public
   const isPublicPath = publicPaths.some((path) => pathname === path);
@@ -39,6 +41,16 @@ export async function middleware(request) {
   }
 
   const token = request.cookies.get('token')?.value;
+
+  // If user is logged in and visits landing page, redirect to dashboard
+  if (isLandingPage && token) {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
+  }
+
+  // If user is not logged in and visits a public page (like landing), let them through
+  if (isLandingPage && !token) {
+    return NextResponse.next();
+  }
 
   if (!token) {
     if (pathname.startsWith('/api/')) {

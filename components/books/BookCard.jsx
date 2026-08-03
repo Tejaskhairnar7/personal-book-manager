@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { BookOpen, Heart, MoreVertical } from 'lucide-react';
+import { Heart } from 'lucide-react';
 import Link from 'next/link';
 import Badge from '@/components/ui/Badge';
 import { PLACEHOLDER_COVER } from '@/utils/constants';
@@ -18,18 +18,13 @@ export default function BookCard({ book, index = 0, onFavorite }) {
         <div className="glass-card overflow-hidden group card-hover">
           {/* Cover Image */}
           <div className="relative h-56 bg-gray-100 dark:bg-gray-700 overflow-hidden">
-            {book.coverImage ? (
-              <img
-                src={book.coverImage}
-                alt={book.title}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                loading="lazy"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <BookOpen className="w-16 h-16 text-gray-300 dark:text-gray-600" />
-              </div>
-            )}
+            <img
+              src={book.coverImage || PLACEHOLDER_COVER}
+              alt={book.title}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              loading="lazy"
+              onError={(e) => { e.currentTarget.src = PLACEHOLDER_COVER; }}
+            />
 
             {/* Favorite button */}
             <button

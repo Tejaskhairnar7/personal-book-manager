@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { BookOpen, ArrowRight } from 'lucide-react';
+import { ArrowRight, BookOpen } from 'lucide-react';
 import Badge from '@/components/ui/Badge';
 import { formatDate } from '@/utils/helpers';
 import { PLACEHOLDER_COVER } from '@/utils/constants';
@@ -31,18 +31,13 @@ export default function RecentBooks({ books = [] }) {
             className="flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors group"
           >
             <div className="w-12 h-16 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 flex-shrink-0">
-              {book.coverImage ? (
-                <img
-                  src={book.coverImage}
-                  alt={book.title}
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <BookOpen className="w-5 h-5 text-gray-400" />
-                </div>
-              )}
+              <img
+                src={book.coverImage || PLACEHOLDER_COVER}
+                alt={book.title}
+                className="w-full h-full object-cover"
+                loading="lazy"
+                onError={(e) => { e.currentTarget.src = PLACEHOLDER_COVER; }}
+              />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-900 dark:text-white truncate group-hover:text-primary-600 transition-colors">

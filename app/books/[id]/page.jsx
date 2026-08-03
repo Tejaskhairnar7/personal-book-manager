@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Edit3, Trash2, Heart, ExternalLink, BookOpen, Calendar, Tag } from 'lucide-react';
+import { ArrowLeft, Edit3, Trash2, Heart, Calendar, Tag } from 'lucide-react';
 import AuthGuard from '@/components/AuthGuard';
 import Badge from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
@@ -86,19 +86,14 @@ function BookDetailContent() {
         <div className="glass-card overflow-hidden">
           <div className="flex flex-col md:flex-row">
             {/* Cover */}
-            <div className="md:w-80 flex-shrink-0">
-              <div className="aspect-[2/3] md:h-full bg-gray-100 dark:bg-gray-700 relative">
-                {book.coverImage ? (
-                  <img
-                    src={book.coverImage}
-                    alt={book.title}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <BookOpen className="w-24 h-24 text-gray-300 dark:text-gray-600" />
-                  </div>
-                )}
+            <div className="w-full md:w-72 lg:w-80 flex-shrink-0">
+              <div className="aspect-[2/3] md:aspect-auto md:h-full bg-gray-100 dark:bg-gray-700 relative">
+                <img
+                  src={book.coverImage || PLACEHOLDER_COVER}
+                  alt={book.title}
+                  className="w-full h-full object-cover"
+                  onError={(e) => { e.currentTarget.src = PLACEHOLDER_COVER; }}
+                />
 
                 {/* Favorite overlay */}
                 <button
@@ -115,7 +110,7 @@ function BookDetailContent() {
             </div>
 
             {/* Details */}
-            <div className="flex-1 p-6 md:p-8">
+            <div className="flex-1 min-w-0 p-6 md:p-8">
               <div className="flex items-start justify-between gap-4 mb-4">
                 <div>
                   <h1 className="text-2xl sm:text-3xl font-display font-bold text-gray-900 dark:text-white">

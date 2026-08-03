@@ -20,7 +20,7 @@ export const SORT_OPTIONS = [
 
 export const BOOKS_PER_PAGE = 12;
 
-export const PLACEHOLDER_COVER = 'https://placehold.co/300x450/e2e8f0/64748b?text=No+Cover';
+export const PLACEHOLDER_COVER = '/images/book-placeholder.svg';
 
 export const CHART_COLORS = [
   '#5c7cfa',

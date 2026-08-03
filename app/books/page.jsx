@@ -11,6 +11,7 @@ import EmptyState from '@/components/ui/EmptyState';
 import { BookCardSkeleton } from '@/components/ui/Skeleton';
 import Pagination from '@/components/ui/Pagination';
 import Button from '@/components/ui/Button';
+import { PLACEHOLDER_COVER } from '@/utils/constants';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 
@@ -137,11 +138,13 @@ function BooksContent() {
                   <Link href={`/books/${book._id}`}>
                     <div className="glass-card p-4 hover:shadow-md transition-all flex items-center gap-4">
                       <div className="w-12 h-16 rounded-lg bg-gray-100 dark:bg-gray-700 overflow-hidden flex-shrink-0">
-                        {book.coverImage ? (
-                          <img src={book.coverImage} alt="" className="w-full h-full object-cover" loading="lazy" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">📖</div>
-                        )}
+                        <img
+                          src={book.coverImage || PLACEHOLDER_COVER}
+                          alt={book.title}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                          onError={(e) => { e.currentTarget.src = PLACEHOLDER_COVER; }}
+                        />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-medium text-gray-900 dark:text-white truncate">{book.title}</p>
