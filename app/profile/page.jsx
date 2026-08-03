@@ -163,7 +163,7 @@ function ProfileContent() {
 
         <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 flex items-center gap-2 text-sm text-gray-400">
           <Calendar className="w-4 h-4" />
-          Member since {formatDate(user?.createdAt)}
+          Member since {formatDate(user?.createdAt) || 'N/A'}
         </div>
       </motion.div>
     </div>
