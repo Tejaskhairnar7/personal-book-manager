@@ -2,6 +2,11 @@ import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import Book from '@/models/Book';
 import { verifyToken } from '@/lib/auth';
+import { handleOptions, corsHeaders } from '@/lib/apiUtils';
+
+export async function OPTIONS() {
+  return handleOptions();
+}
 
 export async function GET(request, { params }) {
   try {
@@ -9,26 +14,23 @@ export async function GET(request, { params }) {
 
     const token = request.cookies.get('token')?.value;
     if (!token) {
-      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+      return corsHeaders(NextResponse.json({ error: 'Not authenticated' }, { status: 401 }));
     }
 
     const decoded = verifyToken(token);
     if (!decoded) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+      return corsHeaders(NextResponse.json({ error: 'Invalid token' }, { status: 401 }));
     }
 
     const book = await Book.findOne({ _id: params.id, user: decoded.userId });
     if (!book) {
-      return NextResponse.json({ error: 'Book not found' }, { status: 404 });
+      return corsHeaders(NextResponse.json({ error: 'Book not found' }, { status: 404 }));
     }
 
-    return NextResponse.json({ book });
+    return corsHeaders(NextResponse.json({ book }));
   } catch (error) {
     console.error('Get book error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return corsHeaders(NextResponse.json({ error: 'Internal server error' }, { status: 500 }));
   }
 }
 
@@ -38,12 +40,12 @@ export async function PUT(request, { params }) {
 
     const token = request.cookies.get('token')?.value;
     if (!token) {
-      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+      return corsHeaders(NextResponse.json({ error: 'Not authenticated' }, { status: 401 }));
     }
 
     const decoded = verifyToken(token);
     if (!decoded) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+      return corsHeaders(NextResponse.json({ error: 'Invalid token' }, { status: 401 }));
     }
 
     const body = await request.json();
@@ -68,20 +70,17 @@ export async function PUT(request, { params }) {
     );
 
     if (!book) {
-      return NextResponse.json({ error: 'Book not found' }, { status: 404 });
+      return corsHeaders(NextResponse.json({ error: 'Book not found' }, { status: 404 }));
     }
 
-    return NextResponse.json({ book });
+    return corsHeaders(NextResponse.json({ book }));
   } catch (error) {
     console.error('Update book error:', error);
     if (error.name === 'ValidationError') {
       const messages = Object.values(error.errors).map((e) => e.message);
-      return NextResponse.json({ error: messages.join(', ') }, { status: 400 });
+      return corsHeaders(NextResponse.json({ error: messages.join(', ') }, { status: 400 }));
     }
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return corsHeaders(NextResponse.json({ error: 'Internal server error' }, { status: 500 }));
   }
 }
 
@@ -91,25 +90,22 @@ export async function DELETE(request, { params }) {
 
     const token = request.cookies.get('token')?.value;
     if (!token) {
-      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+      return corsHeaders(NextResponse.json({ error: 'Not authenticated' }, { status: 401 }));
     }
 
     const decoded = verifyToken(token);
     if (!decoded) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+      return corsHeaders(NextResponse.json({ error: 'Invalid token' }, { status: 401 }));
     }
 
     const book = await Book.findOneAndDelete({ _id: params.id, user: decoded.userId });
     if (!book) {
-      return NextResponse.json({ error: 'Book not found' }, { status: 404 });
+      return corsHeaders(NextResponse.json({ error: 'Book not found' }, { status: 404 }));
     }
 
-    return NextResponse.json({ message: 'Book deleted successfully' });
+    return corsHeaders(NextResponse.json({ message: 'Book deleted successfully' }));
   } catch (error) {
     console.error('Delete book error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return corsHeaders(NextResponse.json({ error: 'Internal server error' }, { status: 500 }));
   }
 }

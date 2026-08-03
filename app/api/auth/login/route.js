@@ -3,6 +3,11 @@ import { connectDB } from '@/lib/db';
 import User from '@/models/User';
 import { validateLogin, sanitizeInput } from '@/lib/validate';
 import { signToken } from '@/lib/auth';
+import { handleOptions, corsHeaders } from '@/lib/apiUtils';
+
+export async function OPTIONS() {
+  return handleOptions();
+}
 
 export async function POST(request) {
   try {
@@ -13,23 +18,17 @@ export async function POST(request) {
 
     const errors = validateLogin(data);
     if (errors.length > 0) {
-      return NextResponse.json({ error: errors.join(', ') }, { status: 400 });
+      return corsHeaders(NextResponse.json({ error: errors.join(', ') }, { status: 400 }));
     }
 
     const user = await User.findOne({ email: data.email.toLowerCase() }).select('+password');
     if (!user) {
-      return NextResponse.json(
-        { error: 'Invalid email or password' },
-        { status: 401 }
-      );
+      return corsHeaders(NextResponse.json({ error: 'Invalid email or password' }, { status: 401 }));
     }
 
     const isMatch = await user.comparePassword(data.password);
     if (!isMatch) {
-      return NextResponse.json(
-        { error: 'Invalid email or password' },
-        { status: 401 }
-      );
+      return corsHeaders(NextResponse.json({ error: 'Invalid email or password' }, { status: 401 }));
     }
 
     const token = signToken({ userId: user._id });
@@ -53,12 +52,9 @@ export async function POST(request) {
       path: '/',
     });
 
-    return response;
+    return corsHeaders(response);
   } catch (error) {
     console.error('Login error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return corsHeaders(NextResponse.json({ error: 'Internal server error' }, { status: 500 }));
   }
 }

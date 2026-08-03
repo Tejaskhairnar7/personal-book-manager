@@ -3,6 +3,11 @@ import { connectDB } from '@/lib/db';
 import User from '@/models/User';
 import { verifyToken } from '@/lib/auth';
 import { sanitizeInput } from '@/lib/validate';
+import { handleOptions, corsHeaders } from '@/lib/apiUtils';
+
+export async function OPTIONS() {
+  return handleOptions();
+}
 
 export async function PUT(request) {
   try {
@@ -10,12 +15,12 @@ export async function PUT(request) {
 
     const token = request.cookies.get('token')?.value;
     if (!token) {
-      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+      return corsHeaders(NextResponse.json({ error: 'Not authenticated' }, { status: 401 }));
     }
 
     const decoded = verifyToken(token);
     if (!decoded) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+      return corsHeaders(NextResponse.json({ error: 'Invalid token' }, { status: 401 }));
     }
 
     const body = await request.json();
@@ -38,10 +43,10 @@ export async function PUT(request) {
     });
 
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      return corsHeaders(NextResponse.json({ error: 'User not found' }, { status: 404 }));
     }
 
-    return NextResponse.json({
+    return corsHeaders(NextResponse.json({
       user: {
         id: user._id,
         name: user.name,
@@ -49,12 +54,9 @@ export async function PUT(request) {
         avatar: user.avatar,
         bio: user.bio,
       },
-    });
+    }));
   } catch (error) {
     console.error('Profile update error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return corsHeaders(NextResponse.json({ error: 'Internal server error' }, { status: 500 }));
   }
 }

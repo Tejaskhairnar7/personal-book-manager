@@ -2,6 +2,11 @@ import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import Book from '@/models/Book';
 import { verifyToken } from '@/lib/auth';
+import { handleOptions, corsHeaders } from '@/lib/apiUtils';
+
+export async function OPTIONS() {
+  return handleOptions();
+}
 
 export async function GET(request) {
   try {
@@ -9,12 +14,12 @@ export async function GET(request) {
 
     const token = request.cookies.get('token')?.value;
     if (!token) {
-      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+      return corsHeaders(NextResponse.json({ error: 'Not authenticated' }, { status: 401 }));
     }
 
     const decoded = verifyToken(token);
     if (!decoded) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+      return corsHeaders(NextResponse.json({ error: 'Invalid token' }, { status: 401 }));
     }
 
     const { searchParams } = new URL(request.url);
@@ -56,18 +61,15 @@ export async function GET(request) {
       Book.countDocuments(query),
     ]);
 
-    return NextResponse.json({
+    return corsHeaders(NextResponse.json({
       books,
       total,
       page,
       totalPages: Math.ceil(total / limit),
-    });
+    }));
   } catch (error) {
     console.error('Get books error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return corsHeaders(NextResponse.json({ error: 'Internal server error' }, { status: 500 }));
   }
 }
 
@@ -77,22 +79,22 @@ export async function POST(request) {
 
     const token = request.cookies.get('token')?.value;
     if (!token) {
-      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+      return corsHeaders(NextResponse.json({ error: 'Not authenticated' }, { status: 401 }));
     }
 
     const decoded = verifyToken(token);
     if (!decoded) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+      return corsHeaders(NextResponse.json({ error: 'Invalid token' }, { status: 401 }));
     }
 
     const body = await request.json();
     const { title, author, description, coverImage, tags, readingStatus, isFavorite, readingProgress } = body;
 
     if (!title || !title.trim()) {
-      return NextResponse.json({ error: 'Title is required' }, { status: 400 });
+      return corsHeaders(NextResponse.json({ error: 'Title is required' }, { status: 400 }));
     }
     if (!author || !author.trim()) {
-      return NextResponse.json({ error: 'Author is required' }, { status: 400 });
+      return corsHeaders(NextResponse.json({ error: 'Author is required' }, { status: 400 }));
     }
 
     const book = await Book.create({
@@ -107,16 +109,13 @@ export async function POST(request) {
       user: decoded.userId,
     });
 
-    return NextResponse.json({ book }, { status: 201 });
+    return corsHeaders(NextResponse.json({ book }, { status: 201 }));
   } catch (error) {
     console.error('Create book error:', error);
     if (error.name === 'ValidationError') {
       const messages = Object.values(error.errors).map((e) => e.message);
-      return NextResponse.json({ error: messages.join(', ') }, { status: 400 });
+      return corsHeaders(NextResponse.json({ error: messages.join(', ') }, { status: 400 }));
     }
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return corsHeaders(NextResponse.json({ error: 'Internal server error' }, { status: 500 }));
   }
 }

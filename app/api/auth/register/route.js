@@ -3,6 +3,11 @@ import { connectDB } from '@/lib/db';
 import User from '@/models/User';
 import { validateRegister, sanitizeInput } from '@/lib/validate';
 import { signToken } from '@/lib/auth';
+import { handleOptions, corsHeaders } from '@/lib/apiUtils';
+
+export async function OPTIONS() {
+  return handleOptions();
+}
 
 export async function POST(request) {
   try {
@@ -13,12 +18,20 @@ export async function POST(request) {
 
     const errors = validateRegister(data);
     if (errors.length > 0) {
-      return NextResponse.json({ error: errors.join(', ') }, { status: 400 });
+      const response = NextResponse.json(
+        { error: errors.join(', ') },
+        { status: 400 }
+      );
+      return corsHeaders(response);
     }
 
     const existingUser = await User.findOne({ email: data.email.toLowerCase() });
     if (existingUser) {
-      return NextResponse.json({ error: 'Email already registered' }, { status: 409 });
+      const response = NextResponse.json(
+        { error: 'Email already registered' },
+        { status: 409 }
+      );
+      return corsHeaders(response);
     }
 
     const user = await User.create({
@@ -51,19 +64,16 @@ export async function POST(request) {
       path: '/',
     });
 
-    return response;
+    return corsHeaders(response);
   } catch (error) {
     console.error('Registration error:', error);
     if (error.name === 'ValidationError') {
       const messages = Object.values(error.errors).map((e) => e.message);
-      return NextResponse.json({ error: messages.join(', ') }, { status: 400 });
+      return corsHeaders(NextResponse.json({ error: messages.join(', ') }, { status: 400 }));
     }
     if (error.code === 11000) {
-      return NextResponse.json({ error: 'Email already registered' }, { status: 409 });
+      return corsHeaders(NextResponse.json({ error: 'Email already registered' }, { status: 409 }));
     }
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return corsHeaders(NextResponse.json({ error: 'Internal server error' }, { status: 500 }));
   }
 }
