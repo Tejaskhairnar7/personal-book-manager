@@ -82,7 +82,7 @@ A premium, full-stack personal book manager built with Next.js 15. Track your re
 ## 📁 Folder Structure
 
 ```
-personal-book-manager/
+book-manager/
 ├── app/
 │   ├── api/
 │   │   ├── auth/
@@ -178,8 +178,8 @@ personal-book-manager/
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/Tejaskhairnar7/personal-book-manager.git
-   cd personal-book-manager
+   git clone https://github.com/your-username/book-manager.git
+   cd book-manager
    ```
 
 2. **Install dependencies**
