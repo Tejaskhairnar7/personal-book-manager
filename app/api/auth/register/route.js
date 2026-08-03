@@ -54,6 +54,13 @@ export async function POST(request) {
     return response;
   } catch (error) {
     console.error('Registration error:', error);
+    if (error.name === 'ValidationError') {
+      const messages = Object.values(error.errors).map((e) => e.message);
+      return NextResponse.json({ error: messages.join(', ') }, { status: 400 });
+    }
+    if (error.code === 11000) {
+      return NextResponse.json({ error: 'Email already registered' }, { status: 409 });
+    }
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
